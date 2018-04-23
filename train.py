@@ -10,14 +10,18 @@ from logger import Logger
 
 
 def update_agent(agent, replay_memory, gamma, optim, batch_size):
-    samples = replay_memory.sample(batch_size)
+    tree_idxs , samples , weights= replay_memory.sample(batch_size)
     states, actions, rewards, next_states, non_ends = samples_to_tensors(samples)
     actions = utils.one_hot(actions.unsqueeze(1), agent.num_actions)
     targets = agent.compute_targets(rewards, next_states, non_ends, gamma)
     states = Variable(states)
     actions = Variable(actions)
     targets = Variable(targets)
-    loss = agent.loss(states, actions, targets)
+    ####################################################
+    ## Incorporating PER
+    loss, loss_arr = agent.loss(states, actions, targets,weights)
+    replay_memory.update_priorities(tree_idxs, loss_arr.data)
+    ####################################################
     loss.backward()
     optim.step()
     optim.zero_grad()
