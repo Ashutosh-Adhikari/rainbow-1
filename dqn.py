@@ -52,7 +52,7 @@ class DQNAgent(object):
         targets = rewards + gamma * next_qs * non_ends
         return targets
 
-    def loss(self, states, actions, targets):
+    def loss(self, states, actions, targets,weights):
         """
         params:
             states: Variable [batch, channel, w, h]
@@ -63,8 +63,11 @@ class DQNAgent(object):
 
         qs = self.online_q_net(states)
         preds = (qs * actions).sum(1)
-        err = nn.functional.smooth_l1_loss(preds, targets)
-        return err
+        #err = nn.functional.smooth_l1_loss(preds, targets)
+	    criterion = torch.nn.SmoothL1Loss(reduce = False)
+	    loss = criterion(preds, targets)
+	    err = (loss*weights).mean()
+        return err,loss
 
 
 class DistributionalDQNAgent(DQNAgent):
