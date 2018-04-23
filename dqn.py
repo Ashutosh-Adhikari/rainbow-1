@@ -64,9 +64,9 @@ class DQNAgent(object):
         qs = self.online_q_net(states)
         preds = (qs * actions).sum(1)
         #err = nn.functional.smooth_l1_loss(preds, targets)
-	    criterion = torch.nn.SmoothL1Loss(reduce = False)
-	    loss = criterion(preds, targets)
-	    err = (loss*weights).mean()
+	criterion = torch.nn.SmoothL1Loss(reduce = False)
+	loss = criterion(preds, targets)
+	err = (loss*weights).mean()
         return err,loss
 
 
